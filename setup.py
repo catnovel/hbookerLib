@@ -9,7 +9,7 @@ setup(
     long_description_content_type='text/markdown',  # if you have a README.md
     author='hang333',
     author_email='cat@cat.com',
-    url='https://github.com/catnovel/HbookerAPI',
+    url='https://github.com/catnovel/hbookerLib',
     install_requires=[
         'setuptools~=57.4.0',
         'requests~=2.26.0',
