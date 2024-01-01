@@ -12,8 +12,11 @@ class HbookerAPI:
                 self.verify_token()
 
     def verify_token(self):
-        if self.get_shelf_list().get('code') != '100000':
+        if self.get_my_info().get('code') != '100000':
             raise ValueError('Invalid account or login_token')
+
+    def get_my_info(self):
+        return self.util.post(url_constants.MY_DETAILS_INFO)
 
     @DeprecationWarning
     def login(self, login_name, passwd):
@@ -30,6 +33,19 @@ class HbookerAPI:
     def get_shelf_book_list_new(self, shelf_id):
         data = {'count': 999, 'page': 0, 'order': 'last_read_time', 'shelf_id': shelf_id}
         return self.util.post(url_constants.BOOKSHELF_GET_SHELF_BOOK_LIST_NEW, data)
+
+    def get_bookshelf(self):
+        shelf_list = self.get_shelf_list()
+        if shelf_list.get('code') != '100000':
+            print(f"get_shelf_list error: {shelf_list.get('tip', 'Unknown error')}")
+            return
+        for shelf in shelf_list['data']['shelf_list']:
+            book_list = self.get_shelf_book_list_new(shelf['shelf_id'])
+            if book_list.get('code') == '100000':
+                for data in book_list['data']['book_list']:
+                    yield data['book_info']
+            else:
+                print(f"get_shelf_book_list_new error: {book_list.get('tip', 'Unknown error')}")
 
     @DeprecationWarning
     def get_division_list(self, book_id):
