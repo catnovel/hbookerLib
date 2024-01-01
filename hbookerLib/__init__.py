@@ -64,6 +64,15 @@ class HbookerAPI:
             else:
                 print(f"get_shelf_book_list_new error: {book_list.get('tip', 'Unknown error')}")
 
+    def get_search_book_list(self, keyword, page=0, filter_word='', filter_uptime='', up_status='', is_paid=''):
+        data = {'category_index': 0, 'key': keyword, 'filter_uptime': filter_uptime, 'up_status': up_status,
+                'filter_word': filter_word, 'count': 10, 'tags': [], 'use_daguan': 0, 'page': page, 'is_paid': is_paid}
+        return self.util.post(url_constants.BOOKCITY_GET_SEARCH_BOOK_LIST, data)
+
+    def get_tag_book_list(self, tag, page=0):
+        data = {'count': 10, 'tag': tag, 'page': page, "tag_type": 0}
+        return self.util.post(url_constants.BOOKCITY_GET_TAG_BOOK_LIST, data)
+
     @util.deprecated("please use get_updated_chapter_by_division_new() instead,This api is deprecated")
     def get_division_list(self, book_id):
         return self.util.post(url_constants.GET_DIVISION_LIST, {'book_id': book_id})
