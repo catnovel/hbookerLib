@@ -23,7 +23,7 @@ class HbookerAPI:
     def get_my_info(self):
         return self.util.post(url_constants.MY_DETAILS_INFO)
 
-    @util.deprecated("ciweimao has added geetest verification, this login interface is invalid")
+    @util.deprecated("ciweimao has added geetest verification, this login api is invalid")
     def login(self, login_name, passwd):
         return self.util.post(url_constants.MY_SIGN_LOGIN, {'login_name': login_name, 'passwd': passwd})
 
@@ -32,7 +32,7 @@ class HbookerAPI:
 
     def signup_first_register(self, login_name: str):
         params = {'user_id': login_name, 't': int(round(time.time() * 1000))}
-        return self.util.get(url_constants.SIGNUP_FIRST_REGISTER, params=params)
+        return self.util.get(url_constants.SIGNUP_FIRST_REGISTER, data=params)
 
     def login_new(self, login_name, passwd, geetest_validate, geetest_challenge):
         data = {'login_name': login_name, 'passwd': passwd, 'geetest_seccode': geetest_validate + "|jordan",
@@ -42,8 +42,7 @@ class HbookerAPI:
     def get_shelf_list(self):
         return self.util.post(url_constants.BOOKSHELF_GET_SHELF_LIST)
 
-    @util.deprecated(
-        "ciweimao has used new interface since version 2.9.290, please use get_shelf_book_list_new() instead")
+    @util.deprecated("ciweimao has used new api since version 2.9.290, please use get_shelf_book_list_new() instead")
     def get_shelf_book_list(self, shelf_id, last_mod_time='0', direction='prev'):
         return self.util.post(url_constants.BOOKSHELF_GET_SHELF_BOOK_LIST,
                               {'shelf_id': shelf_id, 'last_mod_time': last_mod_time, 'direction': direction})
