@@ -1,113 +1,154 @@
-# HbookerAPI Documentation
+# HbookerAPI Python Client
 
 ## Overview
 
-`HbookerAPI` is a Python class designed to interact with the Hbooker application's API. It provides methods to perform
-various actions such as logging in, fetching shelf lists, retrieving chapter updates, and more. The class uses a common
-set of parameters for requests and handles the encryption and decryption of data as required by the Hbooker API.
+The `HbookerAPI` class is a Python client for interacting with a specific API, which seems to be related to a book
+reading or publishing service. It provides methods to perform actions such as retrieving user information, logging in,
+signing up, managing bookshelves, fetching book details, and handling chapters and check-in records.
 
-## Initialization
+## Installation
 
-Upon instantiation, the `HbookerAPI` class initializes with no account or login token. It sets up common parameters that
-will be used in every API call, including the application version and a unique device token.
+Before you can use the `HbookerAPI` class, make sure you have Python installed on your system. Then, you'll need to
+install the necessary dependencies, which may include a custom `client` module and other libraries used by this class.
+Since the exact dependencies are not listed, you will need to review the code and install any imports that are
+referenced.
 
-```python
-class HbookerAPI:
-    def __init__(self):
-        self.account = None
-        self.login_token = None
-        self.util = util.Util()
-        self.common_params = {'app_version': '2.9.290', 'device_token': 'ciweimao_'}
+```bash
+pip install <https://github.com/catnovel/hbookerLib>
 ```
-
-## Methods
-
-### `set_common_params(account, login_token)`
-
-Sets the account and login token parameters to be included in all subsequent API calls.
-
-### `post(api_url, data=None)`
-
-Makes a POST request to the specified `api_url` using the provided `data` along with the common parameters. It decrypts
-the response received from the server.
-
-### `login(login_name, passwd)`
-
-Performs a login action using the user's login name and password.
-
-### `get_shelf_list()`
-
-Fetches the user's shelf list from the API.
-
-### `get_shelf_book_list(shelf_id, last_mod_time='0', direction='prev')`
-
-Retrieves the list of books on a specific shelf identified by `shelf_id`.
-
-### `get_division_list(book_id)`
-
-Gets the division list for a given book by `book_id`.
-
-### `get_updated_chapter_by_division_new(book_id: str)`
-
-Obtains the updated chapters by division for the book identified by `book_id`.
-
-### `get_chapter_update(division_id, last_update_time='0')`
-
-Retrieves the chapter updates for a specific division, optionally using `last_update_time` to filter recent updates.
-
-### `get_info_by_id(book_id)`
-
-Gets information for a book by its `book_id`.
-
-### `get_chapter_command(chapter_id)`
-
-Gets command information for a specific chapter identified by `chapter_id`.
-
-### `get_cpt_ifm(chapter_id, chapter_command)`
-
-Fetches information about a chapter using `chapter_id` and a `chapter_command`.
-
-### `get_check_in_records()`
-
-Retrieves the user's check-in records.
-
-### `do_check_in()`
-
-Performs a check-in action for the user.
-
-### `get_version()`
-
-Obtains the current version of the application from the API.
-
+ 
 ## Usage
 
-Before using the `HbookerAPI` class, it's necessary to import the required modules and set up the proper environment.
-After instantiation, the user must log in to authenticate and then can use the various methods to interact with the API.
+To use the `HbookerAPI` class, you must first create an instance of the class, optionally providing an account and login
+token. If you provide these credentials, you can also choose to verify the token immediately.
 
 ```python
-# Example usage
-hbooker_api = HbookerAPI()
-login_response = hbooker_api.login('your_username', 'your_password')
+from hbooker import HbookerAPI
 
-if login_response['code'] == 0:
-    # Login successful, set common parameters
-    hbooker_api.set_common_params(login_response['account'], login_response['login_token'])
-
-    # Fetch shelf list
-    shelf_list = hbooker_api.get_shelf_list()
-    print(shelf_list)
+api_client = HbookerAPI(account='your_account', login_token='your_token', verify_token=True)
 ```
 
-## Error Handling
+### Methods
 
-The `post` method includes a try-except block to handle any exceptions that may occur during the request. It prints the
-error message to the console.
+Below is a list of available methods along with their descriptions:
+
+#### `__init__(self, account=None, login_token=None, verify_token=False)`
+
+Initialize the API client with optional account and login token. If `verify_token` is `True`, it will immediately
+validate the provided credentials.
+
+#### `verify_token(self)`
+
+Verify the provided login token.
+
+#### `get_my_info(self)`
+
+Retrieve the current user's information.
+
+#### `login(self, login_name, passwd)`
+
+*(Deprecated)* Login with a username and password. This method is invalid due to additional verification requirements.
+
+#### `signup_use_geetest(self, login_name)`
+
+Sign up using the Geetest verification with a login name.
+
+#### `signup_first_register(self, login_name)`
+
+Perform the first step of registration for a new user.
+
+#### `login_new(self, login_name, passwd, geetest_validate, geetest_challenge)`
+
+Login with Geetest verification data.
+
+#### `get_shelf_list(self)`
+
+Retrieve the list of shelves.
+
+#### `get_shelf_book_list(self, shelf_id, last_mod_time='0', direction='prev')`
+
+*(Deprecated)* Get a list of books from a specific shelf.
+
+#### `get_shelf_book_list_new(self, shelf_id)`
+
+Get a list of books from a specific shelf using the new interface.
+
+#### `get_bookshelf(self)`
+
+Retrieve the entire bookshelf and list of books.
+
+#### `get_division_list(self, book_id)`
+
+*(Deprecated)* Get a list of divisions for a given book.
+
+#### `get_chapter_update(self, division_id)`
+
+*(Deprecated)* Get updates for chapters within a division.
+
+#### `get_updated_chapter_by_division_new(self, book_id)`
+
+Get updated chapters for a given book using the new interface.
+
+#### `get_info_by_id(self, book_id)`
+
+Retrieve information for a book by its ID.
+
+#### `get_chapter_command(self, chapter_id)`
+
+Get the command needed to fetch a specific chapter's content.
+
+#### `get_cpt_ifm(self, chapter_id, command)`
+
+Get chapter information including the command needed to decrypt content.
+
+#### `get_chapter_content(self, chapter_id)`
+
+Retrieve and decrypt the content of a chapter.
+
+#### `get_check_in_records(self)`
+
+Get check-in records for the current user.
+
+#### `do_check_in(self)`
+
+Perform a check-in action.
+
+#### `get_version(self)`
+
+Retrieve the current version of the service.
+
+#### `auto_req_v2(self, android_id=None)`
+
+Automatically send a request with optional Android ID.
+
+## Examples
+
+### Fetching User Info
 
 ```python
-try:
-    return json.loads(self.util.decrypt(self.util.post(UrlConstants.WEB_SITE + api_point, data=data)))
-except Exception as error:
-    print("post error:", error)
+user_info = api_client.get_my_info()
+if user_info.get('code') == '100000':
+    print(user_info)
+else:
+    print("Failed to fetch user info.")
 ```
+
+### Checking In
+
+```python
+check_in_response = api_client.do_check_in()
+if check_in_response.get('code') == '100000':
+    print("Check-in successful!")
+else:
+    print("Check-in failed.")
+```
+
+## Contributing
+
+Contributions to this client are welcome. Please make sure to update tests as appropriate.
+
+## License
+
+Specify the license under which this code is made available, such as MIT or GPL.
 
 ---

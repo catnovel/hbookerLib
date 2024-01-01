@@ -2,7 +2,7 @@ import time
 import uuid
 import warnings
 import functools
-from . import util, url_constants
+from . import client, url_constants
 
 
 def deprecated(reason):
@@ -24,7 +24,7 @@ def deprecated(reason):
 class HbookerAPI:
 
     def __init__(self, account: str = None, login_token: str = None, verify_token: bool = False):
-        self.util = util.Util(account=account, login_token=login_token)
+        self.util = client.Client()
         if account is not None and login_token is not None:
             self.util.set_common_params(account, login_token)
             if verify_token:

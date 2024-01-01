@@ -19,12 +19,12 @@ def is_json(myjson):
     return True
 
 
-class Util:
+class Client:
     IV = b'\0' * 16
     APP_VERSION = '2.9.290'
     DEVICE_TOKEN = 'ciweimao_'
 
-    def __init__(self, account=None, login_token=None):
+    def __init__(self):
         self.max_retry = 10
         self.requests_timeout = 20
         self.common_params = {'app_version': self.APP_VERSION, 'device_token': self.DEVICE_TOKEN}
