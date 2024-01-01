@@ -1,24 +1,6 @@
 import time
 import uuid
-import warnings
-import functools
-from . import client, url_constants
-
-
-def deprecated(reason):
-    def decorator(func):
-        @functools.wraps(func)
-        def new_func(*args, **kwargs):
-            warnings.warn(
-                f"{func.__name__} is deprecated and will be removed in a future version. {reason}",
-                category=DeprecationWarning,
-                stacklevel=2
-            )
-            return func(*args, **kwargs)
-
-        return new_func
-
-    return decorator
+from . import client, util, url_constants
 
 
 class HbookerAPI:
@@ -37,7 +19,7 @@ class HbookerAPI:
     def get_my_info(self):
         return self.util.post(url_constants.MY_DETAILS_INFO)
 
-    @deprecated("ciweimao has added geetest verification, this login interface is invalid")
+    @util.deprecated("ciweimao has added geetest verification, this login interface is invalid")
     def login(self, login_name, passwd):
         return self.util.post(url_constants.MY_SIGN_LOGIN, {'login_name': login_name, 'passwd': passwd})
 
@@ -56,7 +38,8 @@ class HbookerAPI:
     def get_shelf_list(self):
         return self.util.post(url_constants.BOOKSHELF_GET_SHELF_LIST)
 
-    @deprecated("ciweimao has used new interface since version 2.9.290, please use get_shelf_book_list_new() instead")
+    @util.deprecated(
+        "ciweimao has used new interface since version 2.9.290, please use get_shelf_book_list_new() instead")
     def get_shelf_book_list(self, shelf_id, last_mod_time='0', direction='prev'):
         return self.util.post(url_constants.BOOKSHELF_GET_SHELF_BOOK_LIST,
                               {'shelf_id': shelf_id, 'last_mod_time': last_mod_time, 'direction': direction})
@@ -78,11 +61,11 @@ class HbookerAPI:
             else:
                 print(f"get_shelf_book_list_new error: {book_list.get('tip', 'Unknown error')}")
 
-    @deprecated("please use get_updated_chapter_by_division_new() instead,This api is deprecated")
+    @util.deprecated("please use get_updated_chapter_by_division_new() instead,This api is deprecated")
     def get_division_list(self, book_id):
         return self.util.post(url_constants.GET_DIVISION_LIST, {'book_id': book_id})
 
-    @deprecated("please use get_updated_chapter_by_division_new() instead,This api is deprecated")
+    @util.deprecated("please use get_updated_chapter_by_division_new() instead,This api is deprecated")
     def get_chapter_update(self, division_id):
         return self.util.post(url_constants.GET_CHAPTER_UPDATE, {'division_id': division_id, 'last_update_time': '0'})
 
