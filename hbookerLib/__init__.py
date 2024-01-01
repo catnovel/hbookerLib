@@ -3,13 +3,17 @@ from . import util, url_constants
 
 
 class HbookerAPI:
-    def __init__(self):
-        self.account = None
-        self.login_token = None
+    APP_VERSION = '2.9.290'
+    DEVICE_TOKEN = 'ciweimao_'
+
+    def __init__(self, account=None, login_token=None):
         self.util = util.Util()
-        self.common_params = {'app_version': '2.9.290', 'device_token': 'ciweimao_'}
+        self.common_params = {'app_version': self.APP_VERSION, 'device_token': self.DEVICE_TOKEN}
+        self.set_common_params(account, login_token)
 
     def set_common_params(self, account, login_token):
+        if account is None or login_token is None:
+            return
         if len(login_token) != 32:
             raise ValueError('login_token must be 32 characters long')
         elif "书客" not in account:
@@ -17,16 +21,14 @@ class HbookerAPI:
 
         self.common_params.update({'account': account, 'login_token': login_token})
 
-    def post(self, api_url, data=None):
-        if data is None:
-            data = self.common_params
-        if data is not None:
-            data.update(self.common_params)
-        api_point = api_url.replace(url_constants.WEB_SITE, '')
+    def post(self, api_point, data=None):
+        data = data or {}
+        data.update(self.common_params)
         try:
-            return json.loads(self.util.decrypt(self.util.post(url_constants.WEB_SITE + api_point, data=data)))
+            response = self.util.post(url_constants.WEB_SITE + api_point, data=data)
+            return json.loads(self.util.decrypt(response))
         except Exception as error:
-            print("post error:", error)
+            raise Exception(f"post error: {error}")
 
     def login(self, login_name, passwd):
         return self.post(url_constants.MY_SIGN_LOGIN, {'login_name': login_name, 'passwd': passwd})
