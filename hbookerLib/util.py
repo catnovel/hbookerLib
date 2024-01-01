@@ -11,13 +11,6 @@ import hashlib
 from hbookerLib import url_constants
 
 
-def default_headers():
-    return {
-        'User-Agent': 'Android com.kuangxiangciweimao.novel ',
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-
-
 def is_json(myjson):
     try:
         json.loads(myjson)
@@ -62,13 +55,17 @@ class Util:
         encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
         return base64.b64encode(encrypted_data)
 
+    def default_headers(self):
+        return {
+            "Connection": "Keep-Alive",
+            "Content-Type": "application/x-www-form-urlencoded",
+            'User-Agent': 'Android com.kuangxiangciweimao.novel ' + self.APP_VERSION,
+        }
+
     def get(self, url, params=None):
-        headers = default_headers()
-        if params.get('app_version') is not None:
-            headers['User-Agent'] += params.get('app_version')
         for count in range(self.max_retry):
             try:
-                res = requests.get(url, params=params, headers=headers, timeout=self.requests_timeout)
+                res = requests.get(url, params=params, headers=self.default_headers(), timeout=self.requests_timeout)
                 if is_json(res.text):
                     return json.loads(res.text)
                 return json.loads(self.decrypt(res.text))
@@ -82,15 +79,12 @@ class Util:
         sys.exit(1)
 
     def post(self, api_point, data=None):
-        headers = default_headers()
-        if data.get('app_version') is not None:
-            headers['User-Agent'] += data.get('app_version')
-        url = url_constants.WEB_SITE + api_point
         data = data or {}
         data.update(self.common_params)
+        url = url_constants.WEB_SITE + api_point
         for count in range(self.max_retry):
             try:
-                res = requests.post(url=url, data=data, headers=headers, timeout=self.requests_timeout)
+                res = requests.post(url=url, data=data, headers=self.default_headers(), timeout=self.requests_timeout)
                 if is_json(res.text):
                     return json.loads(res.text)
                 return json.loads(self.decrypt(res.text))
