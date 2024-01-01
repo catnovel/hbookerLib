@@ -3,62 +3,53 @@ from . import util, url_constants
 
 
 class HbookerAPI:
-    APP_VERSION = '2.9.290'
-    DEVICE_TOKEN = 'ciweimao_'
 
-    def __init__(self, account=None, login_token=None):
-        self.util = util.Util()
-        self.common_params = {'app_version': self.APP_VERSION, 'device_token': self.DEVICE_TOKEN}
-        self.set_common_params(account, login_token)
+    def __init__(self, account: str = None, login_token: str = None, verify_token: bool = False):
+        self.util = util.Util(account=account, login_token=login_token)
+        if account is not None and login_token is not None:
+            self.util.set_common_params(account, login_token)
+            if verify_token:
+                self.verify_token()
 
-    def set_common_params(self, account, login_token):
-        if account is None or login_token is None:
-            return
-        if len(login_token) != 32:
-            raise ValueError('login_token must be 32 characters long')
-        elif "书客" not in account:
-            raise ValueError('account must be a valid account')
+    def verify_token(self):
+        if self.get_shelf_list().get('code') != '100000':
+            raise ValueError('Invalid account or login_token')
 
-        self.common_params.update({'account': account, 'login_token': login_token})
-
-    def post(self, api_point, data=None):
-        data = data or {}
-        data.update(self.common_params)
-        try:
-            response = self.util.post(url_constants.WEB_SITE + api_point, data=data)
-            return json.loads(self.util.decrypt(response))
-        except Exception as error:
-            raise Exception(f"post error: {error}")
-
+    @DeprecationWarning
     def login(self, login_name, passwd):
-        return self.post(url_constants.MY_SIGN_LOGIN, {'login_name': login_name, 'passwd': passwd})
+        return self.util.post(url_constants.MY_SIGN_LOGIN, {'login_name': login_name, 'passwd': passwd})
 
     def get_shelf_list(self):
-        return self.post(url_constants.BOOKSHELF_GET_SHELF_LIST)
+        return self.util.post(url_constants.BOOKSHELF_GET_SHELF_LIST)
 
+    @DeprecationWarning
     def get_shelf_book_list(self, shelf_id, last_mod_time='0', direction='prev'):
-        return self.post(url_constants.BOOKSHELF_GET_SHELF_BOOK_LIST,
-                         {'shelf_id': shelf_id, 'last_mod_time': last_mod_time, 'direction': direction})
+        return self.util.post(url_constants.BOOKSHELF_GET_SHELF_BOOK_LIST,
+                              {'shelf_id': shelf_id, 'last_mod_time': last_mod_time, 'direction': direction})
+
+    def get_shelf_book_list_new(self, shelf_id):
+        data = {'count': 999, 'page': 0, 'order': 'last_read_time', 'shelf_id': shelf_id}
+        return self.util.post(url_constants.BOOKSHELF_GET_SHELF_BOOK_LIST_NEW, data)
 
     @DeprecationWarning
     def get_division_list(self, book_id):
-        return self.post(url_constants.GET_DIVISION_LIST, {'book_id': book_id})
-
-    def get_updated_chapter_by_division_new(self, book_id: str):
-        return self.post(url_constants.GET_DIVISION_LIST_NEW, {'book_id': book_id})
+        return self.util.post(url_constants.GET_DIVISION_LIST, {'book_id': book_id})
 
     @DeprecationWarning
     def get_chapter_update(self, division_id):
-        return self.post(url_constants.GET_CHAPTER_UPDATE, {'division_id': division_id, 'last_update_time': '0'})
+        return self.util.post(url_constants.GET_CHAPTER_UPDATE, {'division_id': division_id, 'last_update_time': '0'})
+
+    def get_updated_chapter_by_division_new(self, book_id: str):
+        return self.util.post(url_constants.GET_DIVISION_LIST_NEW, {'book_id': book_id})
 
     def get_info_by_id(self, book_id):
-        return self.post(url_constants.BOOK_GET_INFO_BY_ID, {'book_id': book_id})
+        return self.util.post(url_constants.BOOK_GET_INFO_BY_ID, {'book_id': book_id})
 
     def get_chapter_command(self, chapter_id):
-        return self.post(url_constants.GET_CHAPTER_COMMAND, {'chapter_id': chapter_id})
+        return self.util.post(url_constants.GET_CHAPTER_COMMAND, {'chapter_id': chapter_id})
 
     def get_cpt_ifm(self, chapter_id, command):
-        return self.post(url_constants.GET_CPT_IFM, {'chapter_id': chapter_id, 'chapter_command': command})
+        return self.util.post(url_constants.GET_CPT_IFM, {'chapter_id': chapter_id, 'chapter_command': command})
 
     def get_chapter_content(self, chapter_id):
         command = self.get_chapter_command(chapter_id)
@@ -80,10 +71,10 @@ class HbookerAPI:
         return chapter_info
 
     def get_check_in_records(self):
-        return self.post(url_constants.SIGN_RECORD, {})
+        return self.util.post(url_constants.SIGN_RECORD, {})
 
     def do_check_in(self):
-        return self.post(url_constants.SING_RECORD_TASK, {'task_type': 1})
+        return self.util.post(url_constants.SING_RECORD_TASK, {'task_type': 1})
 
     def get_version(self):
-        return self.post(url_constants.MY_SETTING_UPDATE)
+        return self.util.post(url_constants.MY_SETTING_UPDATE)
