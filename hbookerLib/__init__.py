@@ -5,12 +5,16 @@ from . import client, util, url_constants
 
 class HbookerAPI:
 
-    def __init__(self, account: str = None, login_token: str = None, verify_token: bool = False):
-        self.util = client.Client()
+    def __init__(self, account: str = None, login_token: str = None, verify_token: bool = False, sk: bool = False):
+        self.util = client.Client(sk=sk)
         if account is not None and login_token is not None:
             self.util.set_common_params(account, login_token)
             if verify_token:
                 self.verify_token()
+
+    def set_sk_client(self):
+        self.util.sk = True
+        self.util.set_sk_client()
 
     def verify_token(self):
         if self.get_my_info().get('code') != '100000':

@@ -1,33 +1,37 @@
 import json
 import time
 import sys
-import requests
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.backends import default_backend
+import httpx
 import base64
 import hashlib
 
-from hbookerLib import url_constants
+from hbookerLib import url_constants, util
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
 
+APP_VERSION = '2.9.290'
+DEVICE_TOKEN = 'ciweimao_'
 
-def is_json(myjson):
-    try:
-        json.loads(myjson)
-    except ValueError as e:
-        return False
-    return True
+SK_DEVICE_TOKEN = 'shuke_'
+SK_APP_VERSION = '1.5.596'
 
 
 class Client:
     IV = b'\0' * 16
-    APP_VERSION = '2.9.290'
-    DEVICE_TOKEN = 'ciweimao_'
 
-    def __init__(self):
-        self.max_retry = 10
-        self.requests_timeout = 20
-        self.common_params = {'app_version': self.APP_VERSION, 'device_token': self.DEVICE_TOKEN}
+    def __init__(self, sk: bool):
+        self.sk = sk
+        self.max_retry = 5
+        self.host = url_constants.WEB_SITE
+        self.common_params = {'app_version': APP_VERSION, 'device_token': DEVICE_TOKEN}
+        self.set_sk_client()
+
+    def set_sk_client(self):
+        if self.sk:
+            self.host = url_constants.SK_WEB_SITE
+            self.common_params['app_version'] = SK_APP_VERSION
+            self.common_params['device_token'] = SK_DEVICE_TOKEN
 
     def set_common_params(self, account, login_token):
         if len(login_token) != 32:
@@ -59,40 +63,35 @@ class Client:
         return {
             "Connection": "Keep-Alive",
             "Content-Type": "application/x-www-form-urlencoded",
-            'User-Agent': 'Android com.kuangxiangciweimao.novel ' + self.APP_VERSION,
+            'User-Agent': 'Android com.kuangxiangciweimao.novel ' + self.common_params['app_version'],
         }
 
-    def get(self, url, params=None):
+    def get(self, api_point: str, data: dict = None):
+        data = data or {}
+        data.update(self.common_params)
         for count in range(self.max_retry):
             try:
-                res = requests.get(url, params=params, headers=self.default_headers(), timeout=self.requests_timeout)
-                if is_json(res.text):
+                res = httpx.get(url=self.host + api_point, params=data, headers=self.default_headers())
+                if util.is_json(res.text):
                     return json.loads(res.text)
                 return json.loads(self.decrypt(res.text))
-            except requests.exceptions.RequestException as e:
-                print("\nGet Error Retry: " + str(e) + '\n' + url)
-                time.sleep(1 * count)
             except Exception as e:
-                print(repr(e))
-                break
+                print(f"\nGet Error Retry: {e}\n{api_point}")
+                time.sleep(1 * count)
         print("\nGet Failed, Terminating......")
         sys.exit(1)
 
-    def post(self, api_point, data=None):
+    def post(self, api_point: str, data: dict = None):
         data = data or {}
         data.update(self.common_params)
-        url = url_constants.WEB_SITE + api_point
         for count in range(self.max_retry):
             try:
-                res = requests.post(url=url, data=data, headers=self.default_headers(), timeout=self.requests_timeout)
-                if is_json(res.text):
+                res = httpx.post(url=self.host + api_point, data=data, headers=self.default_headers())
+                if util.is_json(res.text):
                     return json.loads(res.text)
                 return json.loads(self.decrypt(res.text))
-            except requests.exceptions.RequestException as e:
-                print(f"\nPost Error Retry: {e}\n{url}")
-                time.sleep(1 * count)
             except Exception as e:
-                print(repr(e))
-                break
+                print(f"\nPost Error Retry: {e}\n{api_point}")
+                time.sleep(1 * count)
         print("\nPost Failed, Terminating......")
         sys.exit(1)

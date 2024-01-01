@@ -1,3 +1,4 @@
+import json
 import warnings
 import functools
 
@@ -16,3 +17,11 @@ def deprecated(reason):
         return new_func
 
     return decorator
+
+
+def is_json(myjson):
+    try:
+        json.loads(myjson)
+    except ValueError as e:
+        return False
+    return True
