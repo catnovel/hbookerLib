@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='hbookerLib',
-    version='0.1.1',
+    version='0.1.3',
     packages=find_packages(),
     description='通过开源项目HbookerAppNovelDownloader代码修改而来的API库',
     long_description=open('README.md').read(),
