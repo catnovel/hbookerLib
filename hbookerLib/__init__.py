@@ -70,8 +70,16 @@ class HbookerAPI:
         return self.util.post(url_constants.BOOKCITY_GET_SEARCH_BOOK_LIST, data)
 
     def get_tag_book_list(self, tag, page=0):
-        data = {'count': 10, 'tag': tag, 'page': page, "tag_type": 0}
+        data = {'count': 10, 'tag': tag, 'page': page, "type": 0}
         return self.util.post(url_constants.BOOKCITY_GET_TAG_BOOK_LIST, data)
+
+    def get_rank_list(self, rank_type: str = 'fans_value', page=0):
+        data = {'category_index': 0, 'order': rank_type, 'time_type': 'month', 'count': 10, 'page': page}
+        return self.util.post(url_constants.BOOKCITY_GET_RANK_lIST, data)
+
+    def get_specific_recommend_exposure(self, book_id_list: str, from_module_name='长篇好书'):
+        data = {'from_page_name': '书城_首页', 'from_module_name': from_module_name, 'book_id': book_id_list}
+        return self.util.post(url_constants.BOOKCITY_ADD_SPECIFIC_RECOMMEND_EXPOSURE, data)
 
     @util.deprecated("please use get_updated_chapter_by_division_new() instead,This api is deprecated")
     def get_division_list(self, book_id):

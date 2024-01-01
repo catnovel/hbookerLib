@@ -11,7 +11,7 @@ def readme(file_name: str):
 
 setup(
     name='hbookerLib',
-    version='0.2.1',
+    version='0.2.3',
     packages=find_packages(),
     description='开源项目HbookerAppNovelDownloader基础上修改和重构而来的API库',
     long_description=readme('README.md'),
